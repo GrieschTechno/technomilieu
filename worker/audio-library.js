@@ -105,6 +105,45 @@ export default {
           const originals = await listTracks(env,url.origin,"originals/");
           return json({tracks:[...playable,...originals]});
         }
+        if (url.pathname === "/admin/multipart/start" && request.method === "POST") {
+          const meta = await request.json();
+          const filename = safeName(meta.filename || "audio-file");
+          const type = mimeFor(filename,meta.contentType || "application/octet-stream");
+          const prefix = meta.storageType === "original" ? "originals/" : "tracks/";
+          const key = prefix + Date.now() + "-" + crypto.randomUUID().slice(0,8) + "-" + filename;
+          const upload = await env.AUDIO_BUCKET.createMultipartUpload(key,{
+            httpMetadata:{contentType:type,cacheControl:"public, max-age=3600"},
+            customMetadata:{
+              title:String(meta.title || filename.replace(/\\.[^.]+$/,"")).slice(0,180),
+              artist:String(meta.artist || "").slice(0,120),
+              category:String(meta.category || "Unsortiert").slice(0,80),
+              originalName:String(meta.filename || filename).slice(0,180)
+            }
+          });
+          return json({ok:true,key:upload.key,uploadId:upload.uploadId});
+        }
+        if (url.pathname === "/admin/multipart/part" && request.method === "PUT") {
+          const key=url.searchParams.get("key") || "", uploadId=url.searchParams.get("uploadId") || "";
+          const partNumber=Number(url.searchParams.get("partNumber"));
+          if (!(key.startsWith("tracks/") || key.startsWith("originals/")) || key.includes("..") || !uploadId || !Number.isInteger(partNumber) || partNumber<1 || partNumber>10000) return json({error:"Ungültige Multipart-Daten."},400);
+          const upload=env.AUDIO_BUCKET.resumeMultipartUpload(key,uploadId);
+          const part=await upload.uploadPart(partNumber,request.body);
+          return json(part);
+        }
+        if (url.pathname === "/admin/multipart/complete" && request.method === "POST") {
+          const key=url.searchParams.get("key") || "", uploadId=url.searchParams.get("uploadId") || "";
+          if (!(key.startsWith("tracks/") || key.startsWith("originals/")) || key.includes("..") || !uploadId) return json({error:"Ungültige Multipart-Daten."},400);
+          const body=await request.json();
+          const upload=env.AUDIO_BUCKET.resumeMultipartUpload(key,uploadId);
+          const object=await upload.complete(body.parts || []);
+          return json({ok:true,key:object.key,size:object.size});
+        }
+        if (url.pathname === "/admin/multipart/abort" && request.method === "DELETE") {
+          const key=url.searchParams.get("key") || "", uploadId=url.searchParams.get("uploadId") || "";
+          if (!(key.startsWith("tracks/") || key.startsWith("originals/")) || key.includes("..") || !uploadId) return json({error:"Ungültige Multipart-Daten."},400);
+          await env.AUDIO_BUCKET.resumeMultipartUpload(key,uploadId).abort();
+          return json({ok:true});
+        }
         if (url.pathname === "/admin/upload" && request.method === "PUT") {
           const original = request.headers.get("X-File-Name") || "audio-file";
           const filename = safeName(original);
