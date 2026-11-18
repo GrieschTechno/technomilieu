@@ -30,7 +30,7 @@ async function makeMp3(file){
   const workerResponse=await fetch(pkg+"worker.js");
   if(!workerResponse.ok)throw Error("FFmpeg-Worker konnte nicht geladen werden.");
   const workerSource=await workerResponse.text();
-  const workerModule=workerSource.replace(/from\\s+["']\\.\\/([^"']+)["']/g,(_,name)=>'from "'+pkg+name+'"');
+  const workerModule=workerSource.replace(/from\s+["']\.\/([^"']+)["']/g,(_,name)=>'from "'+pkg+name+'"');
   const classWorkerURL=URL.createObjectURL(new Blob([workerModule],{type:"text/javascript"}));
   await ffmpegInstance.load({classWorkerURL,coreURL:await toBlobURL(core+"/ffmpeg-core.js","text/javascript"),wasmURL:await toBlobURL(core+"/ffmpeg-core.wasm","application/wasm")});
  }
