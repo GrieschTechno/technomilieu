@@ -35,7 +35,7 @@ async function makeMp3(file){
  if(code!==0)throw Error("Audio-Konvertierung fehlgeschlagen.");
  const data=await ffmpegInstance.readFile(output);
  await ffmpegInstance.deleteFile(input);await ffmpegInstance.deleteFile(output);
- return new File([data],file.name.replace(/\\.[^.]+$/,"")+".mp3",{type:"audio/mpeg"});
+ return new File([data],file.name.replace(/\.[^.]+$/,"")+".mp3",{type:"audio/mpeg"});
 }
 async function sendFile(file,storageType,title){
  const r=await fetch(base()+"/admin/upload",{method:"PUT",headers:{...headers(),"Content-Type":file.type||"application/octet-stream","X-File-Name":file.name,"X-Title":title,"X-Artist":$("artist").value,"X-Category":$("category").value,"X-Storage-Type":storageType},body:file});
@@ -45,9 +45,9 @@ async function upload(){
  const files=[...$("files").files];if(!files.length){say("upload-status","Bitte Audiodateien auswählen.");return}
  let done=0;
  for(const file of files){
-  const title=file.name.replace(/\\.[^.]+$/,"");
+  const title=file.name.replace(/\.[^.]+$/,"");
   try{
-   if($("convert").checked&&!/\\.mp3$/i.test(file.name)){
+   if($("convert").checked&&!/\.mp3$/i.test(file.name)){
     say("upload-status","Original wird gespeichert: "+file.name);
     await sendFile(file,"original",title);
     say("upload-status","Erzeuge kompatible MP3-Version: "+file.name+" …");
