@@ -21,7 +21,7 @@ This feature branch adds an R2-backed upload library and admin page.
 - `GET /playlist.json` — public playlist JSON
 - `GET /media/tracks/<key>` — public audio delivery with byte-range support
 - `GET /admin/tracks` — authenticated library list
-- `PUT /admin/upload` — authenticated upload; file bytes in request body, metadata in X-File-Name/X-Title/X-Artist/X-Category; X-Storage-Type=original stores the source file separately
+- `PUT /admin/upload` — authenticated small-file upload; metadata in X-File-Name/X-Title/X-Artist/X-Category; X-Storage-Type=original stores the source file separately\n- `POST /admin/multipart/start`, `PUT /admin/multipart/part`, `POST /admin/multipart/complete`, `DELETE /admin/multipart/abort` — authenticated multipart upload for large files
 - `DELETE /admin/tracks?id=tracks/<key>` or `originals/<key>` — authenticated delete
 
 ## Audio formats
