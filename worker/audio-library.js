@@ -41,6 +41,7 @@ async function listTracks(env, origin, prefix="tracks/") {
       const meta = obj.customMetadata || {};
       items.push({
         id: obj.key,
+        original: prefix === "originals/",
         title: meta.title || obj.key.split("/").pop(),
         artist: meta.artist || "",
         category: meta.category || "Unsortiert",
