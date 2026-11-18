@@ -32,11 +32,11 @@ function authorized(request, env) {
 function authError(request, env) {
   return authorized(request, env) ? null : json({error:"Nicht autorisiert."}, 401);
 }
-async function listTracks(env, origin) {
+async function listTracks(env, origin, prefix="tracks/") {
   const items = [];
   let cursor;
   do {
-    const page = await env.AUDIO_BUCKET.list({prefix:"tracks/", cursor, limit:1000, include:["httpMetadata","customMetadata"]});
+    const page = await env.AUDIO_BUCKET.list({prefix, cursor, limit:1000, include:["httpMetadata","customMetadata"]});
     for (const obj of page.objects) {
       const meta = obj.customMetadata || {};
       items.push({
@@ -101,14 +101,14 @@ export default {
       if (url.pathname.startsWith("/admin/")) {
         const denied = authError(request,env); if (denied) return denied;
         if (url.pathname === "/admin/tracks" && request.method === "GET") {
-          return json({tracks:await listTracks(env,url.origin)});
+          const playable = await listTracks(env,url.origin,"tracks/");\n          return json({tracks:playable});
         }
         if (url.pathname === "/admin/upload" && request.method === "PUT") {
           const original = request.headers.get("X-File-Name") || "audio-file";
           const filename = safeName(original);
           const type = mimeFor(filename,request.headers.get("Content-Type"));
           if (!type.startsWith("audio/") && type !== "application/octet-stream") return json({error:"Dateityp nicht unterstützt."},415);
-          const key = "tracks/" + Date.now() + "-" + crypto.randomUUID().slice(0,8) + "-" + filename;
+          const prefix = request.headers.get("X-Storage-Type") === "original" ? "originals/" : "tracks/";\n          const key = prefix + Date.now() + "-" + crypto.randomUUID().slice(0,8) + "-" + filename;
           await env.AUDIO_BUCKET.put(key,request.body,{
             httpMetadata:{contentType:type,cacheControl:"public, max-age=3600"},
             customMetadata:{
@@ -122,7 +122,7 @@ export default {
         }
         if (url.pathname === "/admin/tracks" && request.method === "DELETE") {
           const key = url.searchParams.get("id") || "";
-          if (!key.startsWith("tracks/") || key.includes("..")) return json({error:"Ungültige Datei-ID."},400);
+          if (!(key.startsWith("tracks/") || key.startsWith("originals/")) || key.includes("..")) return json({error:"Ungültige Datei-ID."},400);
           await env.AUDIO_BUCKET.delete(key);
           return json({ok:true});
         }
