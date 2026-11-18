@@ -5,14 +5,14 @@
  */
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type, X-File-Name, X-Title, X-Artist, X-Category",
   "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
   "Access-Control-Max-Age": "86400"
 };
 const TYPES = new Set([
   "audio/mpeg","audio/mp3","audio/wav","audio/wave","audio/x-wav","audio/flac",
-  "audio/aac","audio/mp4","audio/x-m4a","audio/ogg","audio/opus","audio/webm",
+  "audio/aac","audio/mp4","audio/x-m4a","audio/alac","audio/wavpack","audio/ogg","audio/opus","audio/webm",
   "audio/aiff","audio/x-aiff","audio/x-ms-wma","audio/ape","application/octet-stream"
 ]);
 const json = (data, status=200, headers={}) => new Response(JSON.stringify(data), {
@@ -58,7 +58,7 @@ async function listTracks(env, origin, prefix="tracks/") {
 function mimeFor(name, supplied) {
   if (supplied && TYPES.has(supplied.toLowerCase())) return supplied.toLowerCase();
   const ext = (name.split(".").pop() || "").toLowerCase();
-  return ({mp3:"audio/mpeg",wav:"audio/wav",flac:"audio/flac",aac:"audio/aac",m4a:"audio/mp4",mp4:"audio/mp4",ogg:"audio/ogg",opus:"audio/opus",oga:"audio/ogg",webm:"audio/webm",aif:"audio/aiff",aiff:"audio/aiff",wma:"audio/x-ms-wma",ape:"audio/ape"})[ext] || "application/octet-stream";
+  return ({mp3:"audio/mpeg",wav:"audio/wav",flac:"audio/flac",aac:"audio/aac",m4a:"audio/mp4",mp4:"audio/mp4",ogg:"audio/ogg",opus:"audio/opus",oga:"audio/ogg",webm:"audio/webm",aif:"audio/aiff",aiff:"audio/aiff",wma:"audio/x-ms-wma",ape:"audio/ape",wv:"audio/wavpack",alac:"audio/alac"})[ext] || "application/octet-stream";
 }
 export default {
   async fetch(request, env) {
