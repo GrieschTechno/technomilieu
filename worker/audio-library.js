@@ -6,7 +6,7 @@
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type, X-File-Name, X-Title, X-Artist, X-Category",
+  "Access-Control-Allow-Headers": "Authorization, Content-Type, X-File-Name, X-Title, X-Artist, X-Category, X-Storage-Type",
   "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
   "Access-Control-Max-Age": "86400"
 };
