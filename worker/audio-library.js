@@ -101,14 +101,17 @@ export default {
       if (url.pathname.startsWith("/admin/")) {
         const denied = authError(request,env); if (denied) return denied;
         if (url.pathname === "/admin/tracks" && request.method === "GET") {
-          const playable = await listTracks(env,url.origin,"tracks/");\n          return json({tracks:playable});
+          const playable = await listTracks(env,url.origin,"tracks/");
+          const originals = await listTracks(env,url.origin,"originals/");
+          return json({tracks:[...playable,...originals]});
         }
         if (url.pathname === "/admin/upload" && request.method === "PUT") {
           const original = request.headers.get("X-File-Name") || "audio-file";
           const filename = safeName(original);
           const type = mimeFor(filename,request.headers.get("Content-Type"));
           if (!type.startsWith("audio/") && type !== "application/octet-stream") return json({error:"Dateityp nicht unterstützt."},415);
-          const prefix = request.headers.get("X-Storage-Type") === "original" ? "originals/" : "tracks/";\n          const key = prefix + Date.now() + "-" + crypto.randomUUID().slice(0,8) + "-" + filename;
+          const prefix = request.headers.get("X-Storage-Type") === "original" ? "originals/" : "tracks/";
+          const key = prefix + Date.now() + "-" + crypto.randomUUID().slice(0,8) + "-" + filename;
           await env.AUDIO_BUCKET.put(key,request.body,{
             httpMetadata:{contentType:type,cacheControl:"public, max-age=3600"},
             customMetadata:{
