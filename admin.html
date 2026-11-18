@@ -44,8 +44,28 @@ async function makeMp3(file){
  return new File([data],file.name.replace(/\.[^.]+$/,"")+".mp3",{type:"audio/mpeg"});
 }
 async function sendFile(file,storageType,title){
- const r=await fetch(base()+"/admin/upload",{method:"PUT",headers:{...headers(),"Content-Type":file.type||"application/octet-stream","X-File-Name":file.name,"X-Title":title,"X-Artist":$("artist").value,"X-Category":$("category").value,"X-Storage-Type":storageType},body:file});
- const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"HTTP "+r.status);return d;
+ const common={"X-File-Name":file.name,"X-Title":title,"X-Artist":$("artist").value,"X-Category":$("category").value};
+ if(file.size<=80*1024*1024){
+  const r=await fetch(base()+"/admin/upload",{method:"PUT",headers:{...headers(),...common,"Content-Type":file.type||"application/octet-stream","X-Storage-Type":storageType},body:file});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"HTTP "+r.status);return d;
+ }
+ say("upload-status","Große Datei: starte sicheren Teil-Upload …");
+ const startResult=await request("/admin/multipart/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({filename:file.name,title,artist:$("artist").value,category:$("category").value,contentType:file.type||"application/octet-stream",storageType})});
+ const chunkSize=50*1024*1024,parts=[];
+ try{
+  for(let offset=0,partNumber=1;offset<file.size;offset+=chunkSize,partNumber++){
+   const chunk=file.slice(offset,Math.min(offset+chunkSize,file.size));
+   say("upload-status","Upload Teil "+partNumber+" · "+Math.min(file.size,offset+chunkSize)/1048576|0+" / "+(file.size/1048576).toFixed(0)+" MB");
+   const url=base()+"/admin/multipart/part?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId)+"&partNumber="+partNumber;
+   const r=await fetch(url,{method:"PUT",headers:headers(),body:chunk});
+   const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Teil-Upload HTTP "+r.status);parts.push(d);
+  }
+  await request("/admin/multipart/complete?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({parts})});
+  return {ok:true,key:startResult.key};
+ }catch(error){
+  try{await request("/admin/multipart/abort?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId),{method:"DELETE"})}catch(_){}
+  throw error;
+ }
 }
 async function upload(){
  const files=[...$("files").files];if(!files.length){say("upload-status","Bitte Audiodateien auswählen.");return}
