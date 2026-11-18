@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090909"><title>AUDIOCORE MUSIC STORAGE — Admin</title>
+<style>
+:root{color-scheme:dark;--red:#ed2029}*{box-sizing:border-box}body{margin:0;background:#080808;color:#eee;font:14px Arial,sans-serif}.wrap{width:min(1000px,92%);margin:auto}header{border-bottom:1px solid #333;padding:20px 0}.brand{font-weight:900;letter-spacing:.12em}.brand b{color:var(--red)}h1{font-size:clamp(30px,6vw,52px);margin:38px 0 8px;letter-spacing:-.04em}.muted{color:#999;line-height:1.6}.panel{border:1px solid #383838;background:#141414;padding:22px;margin:22px 0}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.field{display:grid;gap:7px;flex:1;min-width:200px}label{font-size:10px;color:#bbb;letter-spacing:.14em;text-transform:uppercase}input,select{width:100%;background:#080808;color:#eee;border:1px solid #444;padding:12px}.btn{border:1px solid #555;background:#222;color:white;padding:13px 17px;font-weight:bold;cursor:pointer;letter-spacing:.1em}.btn.red{background:#b20f18;border-color:#f44}.status{font-size:12px;color:#bbb;margin-top:12px;white-space:pre-wrap}.track{display:flex;gap:14px;align-items:center;justify-content:space-between;border-top:1px solid #333;padding:13px 0}.track strong{display:block}.track small{color:#999}.track audio{max-width:260px;width:100%}.danger{background:#331013;border-color:#8d2429}.bar{height:7px;background:#333;margin-top:12px}.bar span{display:block;height:100%;width:0;background:var(--red)}a{color:#ddd}@media(max-width:650px){.track{align-items:flex-start;flex-direction:column}.track audio{max-width:100%}}
+</style></head><body><header><div class="wrap"><div class="brand">AUDIOCORE <b>·</b> MUSIC STORAGE</div><div class="muted">TEKKNO MILIEU RADIO · ADMIN STUDIO</div></div></header>
+<main class="wrap"><h1>MUSIC LIBRARY</h1><p class="muted">Audiodateien hochladen, verwalten und direkt im Radio-Archiv verfügbar machen. Originaldateien werden gespeichert; es wird nichts automatisch überschrieben.</p>
+<section class="panel"><h2>Verbindung</h2><div class="row"><div class="field"><label for="api">Audio API URL</label><input id="api" placeholder="https://dein-worker.workers.dev"></div><div class="field"><label for="token">Admin-Schlüssel</label><input id="token" type="password" autocomplete="current-password" placeholder="Cloudflare ADMIN_TOKEN"></div><button class="btn" id="connect">VERBINDEN</button></div><div class="status" id="connection">Noch nicht verbunden.</div></section>
+<section class="panel"><h2>Audiodateien hochladen</h2><p class="muted">MP3, WAV, FLAC, AAC, M4A, OGG, OPUS, AIFF, WMA und APE. Für Nicht-MP3-Dateien kann beim Upload eine zusätzliche MP3-Version (320 kbit/s, 44,1 kHz, Stereo) erstellt werden. Die Originaldatei bleibt separat erhalten. Der Konverter wird bei Bedarf aus dem FFmpeg.wasm-Paket geladen.</p>
+<div class="row"><div class="field"><label for="files">Dateien auswählen</label><input id="files" type="file" multiple accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.ogg,.opus,.aiff,.aif,.wma,.ape,.wv,.alac,.mp4,.oga"></div><div class="field"><label for="artist">Interpret / DJ (optional)</label><input id="artist" placeholder="Interpret oder DJ"></div><div class="field"><label for="category">Kategorie</label><select id="category"><option>Unsortiert</option><option>Hard Techno</option><option>Industrial</option><option>Hardcore</option><option>DJ Mixes</option><option>Own Productions</option><option>Other</option></select></div><div class="field"><label><input id="convert" type="checkbox" checked style="width:auto;margin-right:8px">MP3-Player-Version erstellen (320 kbit/s)</label></div><button class="btn red" id="upload">UPLOAD STARTEN</button></div><div class="bar"><span id="progress"></span></div><div class="status" id="upload-status"></div></section>
+<section class="panel"><div class="row" style="justify-content:space-between"><h2>Musikbibliothek</h2><button class="btn" id="refresh">AKTUALISIEREN</button></div><div id="library" class="muted">Noch keine Verbindung.</div></section>
+<p class="muted"><a href="index.html">← Zurück zu TEKKNO MILIEU RADIO</a></p></main>
+<script>
+const $=id=>document.getElementById(id);const api=$("api"),token=$("token");api.value=localStorage.getItem("audiocore_api")||"";token.value=sessionStorage.getItem("audiocore_token")||"";
+const base=()=>api.value.trim().replace(/\/$/,"");const headers=()=>({Authorization:"Bearer "+token.value});
+function say(id,msg){$(id).textContent=msg}
+async function request(path,opts={}){if(!base())throw Error("Bitte zuerst die Audio API URL eintragen.");const r=await fetch(base()+path,{...opts,headers:{...headers(),...(opts.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"HTTP "+r.status);return d}
+async function connect(){try{const r=await fetch(base()+"/health");if(!r.ok)throw Error("Worker nicht erreichbar");const d=await r.json();if(!d.ok||!d.bucketReady)throw Error("Worker erreichbar, aber R2-Bucket ist nicht gebunden.");await request("/admin/tracks");localStorage.setItem("audiocore_api",base());sessionStorage.setItem("audiocore_token",token.value);say("connection","VERBUNDEN · AUDIOCORE R2 ist erreichbar.");await refresh()}catch(e){say("connection","Verbindung fehlgeschlagen: "+e.message)}}
+async function refresh(){try{const d=await request("/admin/tracks");const box=$("library");box.innerHTML="";if(!d.tracks.length){box.textContent="Noch keine Audiodateien hochgeladen.";return}d.tracks.forEach(t=>{const row=document.createElement("div");row.className="track";const info=document.createElement("div");const strong=document.createElement("strong");strong.textContent=t.title;const small=document.createElement("small");small.textContent=[t.artist,t.category,(t.size/1048576).toFixed(1)+" MB"].filter(Boolean).join(" · ");info.append(strong,small);let preview;if(t.original){preview=document.createElement("small");preview.textContent="ORIGINAL / QUELLDATEI";}else{preview=document.createElement("audio");preview.controls=true;preview.preload="none";preview.src=t.url;}const del=document.createElement("button");del.className="btn danger";del.textContent="LÖSCHEN";del.onclick=async()=>{if(!confirm("Datei wirklich löschen? "+t.title))return;try{await request("/admin/tracks?id="+encodeURIComponent(t.id),{method:"DELETE"});refresh()}catch(e){alert(e.message)}};row.append(info,preview,del);box.append(row)})}catch(e){say("connection",e.message)}}
+let ffmpegInstance=null;
+async function makeMp3(file){
+ if(!ffmpegInstance){
+  say("upload-status","FFmpeg-Konverter wird geladen (einmalig ca. 30–40 MB) …");
+  const [{FFmpeg},{toBlobURL}]=await Promise.all([
+   import("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js"),
+   import("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js")
+  ]);
+  ffmpegInstance=new FFmpeg();
+  const core="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+  const pkg="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/";
+  const workerResponse=await fetch(pkg+"worker.js");
+  if(!workerResponse.ok)throw Error("FFmpeg-Worker konnte nicht geladen werden.");
+  const workerSource=await workerResponse.text();
+  const workerModule=workerSource.replace(/from\s+["']\.\/([^"']+)["']/g,(_,name)=>'from "'+pkg+name+'"');
+  const classWorkerURL=URL.createObjectURL(new Blob([workerModule],{type:"text/javascript"}));
+  await ffmpegInstance.load({classWorkerURL,coreURL:await toBlobURL(core+"/ffmpeg-core.js","text/javascript"),wasmURL:await toBlobURL(core+"/ffmpeg-core.wasm","application/wasm")});
+ }
+ const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+ const input="source."+ext,output="player.mp3";
+ await ffmpegInstance.writeFile(input,new Uint8Array(await file.arrayBuffer()));
+ const code=await ffmpegInstance.exec(["-i",input,"-map","0:a:0","-vn","-c:a","libmp3lame","-b:a","320k","-ar","44100","-ac","2","-id3v2_version","3",output]);
+ if(code!==0)throw Error("Audio-Konvertierung fehlgeschlagen.");
+ const data=await ffmpegInstance.readFile(output);
+ await ffmpegInstance.deleteFile(input);await ffmpegInstance.deleteFile(output);
+ return new File([data],file.name.replace(/\.[^.]+$/,"")+".mp3",{type:"audio/mpeg"});
+}
+async function sendFile(file,storageType,title){
+ const common={"X-File-Name":file.name,"X-Title":title,"X-Artist":$("artist").value,"X-Category":$("category").value};
+ if(file.size<=80*1024*1024){
+  const r=await fetch(base()+"/admin/upload",{method:"PUT",headers:{...headers(),...common,"Content-Type":file.type||"application/octet-stream","X-Storage-Type":storageType},body:file});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"HTTP "+r.status);return d;
+ }
+ say("upload-status","Große Datei: starte sicheren Teil-Upload …");
+ const startResult=await request("/admin/multipart/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({filename:file.name,title,artist:$("artist").value,category:$("category").value,contentType:file.type||"application/octet-stream",storageType})});
+ const chunkSize=50*1024*1024,parts=[];
+ try{
+  for(let offset=0,partNumber=1;offset<file.size;offset+=chunkSize,partNumber++){
+   const chunk=file.slice(offset,Math.min(offset+chunkSize,file.size));
+   say("upload-status","Upload Teil "+partNumber+" · "+(Math.min(file.size,offset+chunkSize)/1048576).toFixed(0)+" / "+(file.size/1048576).toFixed(0)+" MB");
+   const url=base()+"/admin/multipart/part?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId)+"&partNumber="+partNumber;
+   const r=await fetch(url,{method:"PUT",headers:headers(),body:chunk});
+   const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Teil-Upload HTTP "+r.status);parts.push(d);
+  }
+  await request("/admin/multipart/complete?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({parts})});
+  return {ok:true,key:startResult.key};
+ }catch(error){
+  try{await request("/admin/multipart/abort?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId),{method:"DELETE"})}catch(_){}
+  throw error;
+ }
+}
+async function upload(){
+ const files=[...$("files").files];if(!files.length){say("upload-status","Bitte Audiodateien auswählen.");return}
+ let done=0;
+ for(const file of files){
+  const title=file.name.replace(/\.[^.]+$/,"");
+  try{
+   if($("convert").checked&&!/\.mp3$/i.test(file.name)){
+    say("upload-status","Original wird gespeichert: "+file.name);
+    await sendFile(file,"original",title);
+    say("upload-status","Erzeuge kompatible MP3-Version: "+file.name+" …");
+    const mp3=await makeMp3(file);
+    await sendFile(mp3,"track",title);
+   }else{
+    say("upload-status","Upload: "+file.name);
+    await sendFile(file,"track",title);
+   }
+   done++;$("progress").style.width=(done/files.length*100)+"%";
+  }catch(e){say("upload-status","Fehler bei "+file.name+": "+e.message);return}
+ }
+ say("upload-status",done+" Datei(en) verarbeitet. Player-Versionen sind im öffentlichen Archiv verfügbar.");
+ $("files").value="";await refresh();
+}
+$("connect").onclick=connect;$("refresh").onclick=refresh;$("upload").onclick=upload;
+</script></body></html>
