@@ -1,0 +1,7 @@
+name = "audiocore-library"
+main = "worker/audio-library.js"
+compatibility_date = "2026-11-18"
+
+[[r2_buckets]]
+binding = "AUDIO_BUCKET"
+bucket_name = "audiocore-music"
