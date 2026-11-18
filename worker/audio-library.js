@@ -114,7 +114,7 @@ export default {
           const upload = await env.AUDIO_BUCKET.createMultipartUpload(key,{
             httpMetadata:{contentType:type,cacheControl:"public, max-age=3600"},
             customMetadata:{
-              title:String(meta.title || filename.replace(/\\.[^.]+$/,"")).slice(0,180),
+              title:String(meta.title || filename.replace(/\.[^.]+$/,"")).slice(0,180),
               artist:String(meta.artist || "").slice(0,120),
               category:String(meta.category || "Unsortiert").slice(0,80),
               originalName:String(meta.filename || filename).slice(0,180)
