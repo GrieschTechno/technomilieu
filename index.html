@@ -31,7 +31,7 @@ section{padding:58px 0;border-bottom:1px solid #252525}.head{margin-bottom:24px}
 </style>
 </head>
 <body>
-<header><div class="wrap nav"><a class="brand" href="#top">TEKKNO <b>·</b> MILIEU RADIO</a><nav><a href="#radio">Radio</a><a href="#shows">Programm</a><a href="#archive">Archiv</a><a href="#links">Links</a><a href="#community">Community</a><a href="#about">Info</a></nav></div></header>
+<header><div class="wrap nav"><a class="brand" href="#top">TEKKNO <b>·</b> MILIEU RADIO</a><nav><a href="#radio">Radio</a><a href="#shows">Programm</a><a href="#archive">Archiv</a><a href="#links">Links</a><a href="#community">Community</a><a href="#about">Info</a><a href="admin.html">Admin</a></nav></div></header>
 <main id="top">
 <section class="hero"><div class="wrap hero-inner"><div class="eyebrow">Independent underground broadcast</div><h1>RAW DARK<span>FREQUENCIES</span></h1><p>Dunkel. Roh. Kompromisslos. TEKKNO MILIEU RADIO ist die Homebase für Underground-Techno, Hardtechno, DJ-Sets und eigenständige Broadcasts.</p><a class="button primary" href="#radio">RADIO ÖFFNEN ↓</a></div></section>
 <section id="radio"><div class="wrap"><div class="head"><div class="kicker">Live transmission</div><h2>Radio Player</h2><p>Der Live-Empfang wird über die offizielle Radio-Hörseite geöffnet. So umgehen wir keinen Stream-Schutz und zeigen keinen Player als funktionsfähig an, solange der kostenlose Streamanbieter externes Einbetten blockiert.</p></div>
@@ -72,6 +72,7 @@ section{padding:58px 0;border-bottom:1px solid #252525}.head{margin-bottom:24px}
 <section id="about"><div class="wrap"><div class="kicker">Station identity</div><h2>Willkommen im Milieu.</h2><p class="about">TEKKNO MILIEU RADIO — RAW DARK FREQUENCIES BROADCAST. Eine unabhängige Plattform für dunklen Underground-Techno, Hardtechno, DJ-Sets und eigenständige Sendungen. Rohe Kickdrums, verzerrte Maschinen und tiefe Frequenzen. Kein glattgebügeltes Format.</p></div></section>
 </main>
 <footer><div class="wrap foot"><span>© <span id="year"></span> TEKKNO MILIEU RADIO</span><span>RAW DARK FREQUENCIES BROADCAST</span><a href="#top">Nach oben ↑</a></div></footer>
+<script src="audiocore-config.js"></script>
 <script>document.getElementById("year").textContent=new Date().getFullYear();</script><script>
 (async function(){
  const audio=document.getElementById("archive-audio"), list=document.getElementById("archive-list");
@@ -80,7 +81,7 @@ section{padding:58px 0;border-bottom:1px solid #252525}.head{margin-bottom:24px}
  function render(){
   list.innerHTML="";
   if(!tracks.length){list.innerHTML='<div class="note">Noch keine Mix-Dateien veröffentlicht. Die Playlist wird automatisch aus playlist.json geladen.</div>';return;}
-  tracks.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.className="archive-track"+(i===index?" active":"");b.innerHTML='<span><strong></strong><br><small></small></span><span>▶</span>';b.querySelector("strong").textContent=(i+1)+". "+t.title;b.querySelector("small").textContent=t.show||"TEKKNO MILIEU RADIO";b.addEventListener("click",()=>load(i,true));list.appendChild(b);});
+  tracks.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.className="archive-track"+(i===index?" active":"");b.innerHTML='<span><strong></strong><br><small></small></span><span>▶</span>';b.querySelector("strong").textContent=(i+1)+". "+t.title;b.querySelector("small").textContent=t.artist||t.category||t.show||"TEKKNO MILIEU RADIO";b.addEventListener("click",()=>load(i,true));list.appendChild(b);});
  }
  function load(i,autoplay){if(!tracks.length)return;index=(i+tracks.length)%tracks.length;const t=tracks[index];audio.src=t.url;title.textContent=t.title;state.textContent="ARCHIV · MIX "+(index+1)+" / "+tracks.length;render();if(autoplay)audio.play().then(()=>state.textContent="ARCHIV LÄUFT · AUTOMATISCHE WEITERSCHALTUNG").catch(()=>state.textContent="BEREIT · BITTE ERNEUT STARTEN");}
  audio.addEventListener("ended",()=>load(index+1,true));
@@ -89,7 +90,7 @@ section{padding:58px 0;border-bottom:1px solid #252525}.head{margin-bottom:24px}
  document.getElementById("archive-next").addEventListener("click",()=>load(index+1,true));
  document.getElementById("archive-prev").addEventListener("click",()=>load(index-1,true));
  play.addEventListener("click",()=>{if(!tracks.length){state.textContent="NOCH KEINE MIX-DATEIEN HINTERLEGT";return;}if(!audio.src)load(0,false);audio.play().catch(()=>state.textContent="START ÜBER DEN PLAY-BUTTON DES PLAYERS");});
- try{const r=await fetch("playlist.json",{cache:"no-store"});if(!r.ok)throw new Error("playlist");const data=await r.json();tracks=Array.isArray(data.tracks)?data.tracks.filter(t=>t&&t.title&&t.url):[];render();if(tracks.length){load(0,false);state.textContent="STANDBY · "+tracks.length+" MIXE VERFÜGBAR";}}
+ try{const api=(window.AUDIOCORE_API_BASE||"").replace(/\\/$/,"");const r=await fetch(api?api+"/playlist.json":"playlist.json",{cache:"no-store"});if(!r.ok)throw new Error("playlist");const data=await r.json();tracks=Array.isArray(data.tracks)?data.tracks.filter(t=>t&&t.title&&t.url):[];render();if(tracks.length){load(0,false);state.textContent="STANDBY · "+tracks.length+" MIXE VERFÜGBAR";}}
  catch(e){render();state.textContent="STANDBY · ARCHIV NOCH NICHT KONFIGURIERT";}
 })();
 </script>
