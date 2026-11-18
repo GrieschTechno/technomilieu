@@ -26,8 +26,13 @@ async function makeMp3(file){
   ]);
   ffmpegInstance=new FFmpeg();
   const core="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
-  const workerURL=await toBlobURL("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/worker.js","text/javascript");
-  await ffmpegInstance.load({classWorkerURL:workerURL,coreURL:await toBlobURL(core+"/ffmpeg-core.js","text/javascript"),wasmURL:await toBlobURL(core+"/ffmpeg-core.wasm","application/wasm")});
+  const pkg="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/";
+  const workerResponse=await fetch(pkg+"worker.js");
+  if(!workerResponse.ok)throw Error("FFmpeg-Worker konnte nicht geladen werden.");
+  const workerSource=await workerResponse.text();
+  const workerModule=workerSource.replace(/from\\s+["']\\.\\/([^"']+)["']/g,(_,name)=>'from "'+pkg+name+'"');
+  const classWorkerURL=URL.createObjectURL(new Blob([workerModule],{type:"text/javascript"}));
+  await ffmpegInstance.load({classWorkerURL,coreURL:await toBlobURL(core+"/ffmpeg-core.js","text/javascript"),wasmURL:await toBlobURL(core+"/ffmpeg-core.wasm","application/wasm")});
  }
  const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
  const input="source."+ext,output="player.mp3";
