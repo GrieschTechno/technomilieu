@@ -21,15 +21,15 @@ This feature branch adds an R2-backed upload library and admin page.
 - `GET /playlist.json` — public playlist JSON
 - `GET /media/tracks/<key>` — public audio delivery with byte-range support
 - `GET /admin/tracks` — authenticated library list
-- `PUT /admin/upload` — authenticated upload; file bytes in request body, metadata in X-File-Name/X-Title/X-Artist/X-Category
-- `DELETE /admin/tracks?id=tracks/<key>` — authenticated delete
+- `PUT /admin/upload` — authenticated upload; file bytes in request body, metadata in X-File-Name/X-Title/X-Artist/X-Category; X-Storage-Type=original stores the source file separately
+- `DELETE /admin/tracks?id=tracks/<key>` or `originals/<key>` — authenticated delete
 
 ## Audio formats
-Original audio files are retained. MIME types are set for MP3, WAV, FLAC, AAC, M4A, OGG, OPUS, WebM, AIFF, WMA and APE. Browser codec support varies; this initial implementation does not transcode files. A server-side FFmpeg conversion service would require a separate compute host and is not included in the Cloudflare free Worker/R2 setup.
+The admin page can load FFmpeg.wasm on demand from jsDelivr. When MP3 conversion is enabled (default), non-MP3 uploads are stored in originals/ and converted in the browser to a 320 kbit/s, 44.1 kHz, stereo MP3 stored in tracks/. Only tracks/ appears in the public player playlist. MP3 uploads go directly into tracks/. Supported source extensions include MP3, WAV, FLAC, AAC, M4A, OGG, OPUS, AIFF, WMA and APE; actual decoder support depends on the FFmpeg.wasm build. Conversion uses the visitor device memory/CPU; very large files should be converted on a desktop. The original is retained separately.
 
 ## Limits and security
 - Uploads are streamed from the browser to the Worker and then to R2.
 - Cloudflare Worker request-size/plan limits apply; very large files may require multipart R2 uploads.
 - The admin secret is entered at runtime and kept only in the browser session storage; it is never embedded in site source.
-- The media endpoint is public so the public player can stream the uploaded library.
+- The media endpoint is public for tracks/ so the public player can stream the converted library. originals/ is not exposed by the public media route.
 - Do not upload copyrighted material unless you have the rights to store and broadcast it.
