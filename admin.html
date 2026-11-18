@@ -55,7 +55,7 @@ async function sendFile(file,storageType,title){
  try{
   for(let offset=0,partNumber=1;offset<file.size;offset+=chunkSize,partNumber++){
    const chunk=file.slice(offset,Math.min(offset+chunkSize,file.size));
-   say("upload-status","Upload Teil "+partNumber+" · "+Math.min(file.size,offset+chunkSize)/1048576|0+" / "+(file.size/1048576).toFixed(0)+" MB");
+   say("upload-status","Upload Teil "+partNumber+" · "+(Math.min(file.size,offset+chunkSize)/1048576).toFixed(0)+" / "+(file.size/1048576).toFixed(0)+" MB");
    const url=base()+"/admin/multipart/part?key="+encodeURIComponent(startResult.key)+"&uploadId="+encodeURIComponent(startResult.uploadId)+"&partNumber="+partNumber;
    const r=await fetch(url,{method:"PUT",headers:headers(),body:chunk});
    const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Teil-Upload HTTP "+r.status);parts.push(d);
