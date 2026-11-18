@@ -90,7 +90,7 @@ section{padding:58px 0;border-bottom:1px solid #252525}.head{margin-bottom:24px}
  document.getElementById("archive-next").addEventListener("click",()=>load(index+1,true));
  document.getElementById("archive-prev").addEventListener("click",()=>load(index-1,true));
  play.addEventListener("click",()=>{if(!tracks.length){state.textContent="NOCH KEINE MIX-DATEIEN HINTERLEGT";return;}if(!audio.src)load(0,false);audio.play().catch(()=>state.textContent="START ÜBER DEN PLAY-BUTTON DES PLAYERS");});
- try{const api=(window.AUDIOCORE_API_BASE||"").replace(/\\/$/,"");const r=await fetch(api?api+"/playlist.json":"playlist.json",{cache:"no-store"});if(!r.ok)throw new Error("playlist");const data=await r.json();tracks=Array.isArray(data.tracks)?data.tracks.filter(t=>t&&t.title&&t.url):[];render();if(tracks.length){load(0,false);state.textContent="STANDBY · "+tracks.length+" MIXE VERFÜGBAR";}}
+ try{const api=(window.AUDIOCORE_API_BASE||"").replace(/\/$/,"");const r=await fetch(api?api+"/playlist.json":"playlist.json",{cache:"no-store"});if(!r.ok)throw new Error("playlist");const data=await r.json();tracks=Array.isArray(data.tracks)?data.tracks.filter(t=>t&&t.title&&t.url):[];render();if(tracks.length){load(0,false);state.textContent="STANDBY · "+tracks.length+" MIXE VERFÜGBAR";}}
  catch(e){render();state.textContent="STANDBY · ARCHIV NOCH NICHT KONFIGURIERT";}
 })();
 </script>
