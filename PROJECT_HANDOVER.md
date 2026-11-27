@@ -1,58 +1,93 @@
 # TEKKNO MILIEU RADIO – Projektübergabe
-Stand: 18.11.2026
+Stand: 27.11.2026
 
-## Marken
+## Marken und Gesamtprojekt
 - Dachmarke: AUDIOCORE.
-- Radiosender: TEKKNO MILIEU RADIO.
+- Plattform / Universum: TEKKNO MILIEU.
+- Radiosender und aktueller Hauptfokus: TEKKNO MILIEU RADIO.
 - Claim: RAW DARK FREQUENCIES BROADCAST.
-- Verbindlicher Live-Spruch: **WIR SIND AUF SENDUNG!! LIVE!!**
+- Verbindlicher Live-Spruch: WIR SIND AUF SENDUNG!! LIVE!!
 - Stil: Schwarz/Anthrazit/Weiß/Signalrot, industriell und underground.
+- Im Projekt-Branding die Schreibweise Tekkno verwenden.
+- Das Radio ist ein Bereich des TEKKNO MILIEU Universums, nicht die gesamte Plattform.
 
-## Plattformen
-- Radio-Hörseite (bisheriger externer Link): https://technomilieu.radio12345.com/
-- Vorheriger Base44-Testlink, nicht als finale Seite bewerben: https://tekkno-milieu-radio.base44.app
+## Verbindliche Priorität
+JETZT ZUERST DEN RADIO-SENDER ZUM FUNKTIONIEREN UND LAUFEN BRINGEN.
+Keine Ablenkung durch Shop, Downloads, Plugins oder Partnerseiten, bevor Radio und Archiv-Grundbetrieb geprüft funktionieren.
+
+Die gemeinsame Website-Strategie und Umsetzungsphasen stehen in SITE_MASTERPLAN.md.
+
+## Website-Bereiche – Zielbild
+1. RADIO – Live-Stream, Status und Player.
+2. AUDIO ARCHIV – veröffentlichte DJ-Sets und Mixe.
+3. DOWNLOADS – kostenlose Sample-Packs, Loops, Sounds und freigegebene Mixe.
+4. AUDIO TOOLS – fertige Audio-Tools sowie VST/VSTi-Plugins.
+5. ARTISTS & PARTNER – befreundete DJs, Musiker, Labels und Partner.
+6. COMMUNITY – Telegram, WhatsApp, später moderierter Website-Chat.
+7. SUPPORT – freiwilliger Donate-/Support-Button.
+8. ABOUT / KONTAKT – Projektinformationen und Kontakt.
+
+Die Bereiche außerhalb Radio/Archiv werden erst in späteren Phasen umgesetzt.
+
+## Plattformen und Community
+- Radio-Hörseite: https://technomilieu.radio12345.com/
 - Telegram-Kanal: https://t.me/technomilieu
 - Telegram-Bot: https://t.me/TECHNOMILIEUBOT
 - Telegram-Gruppe: https://t.me/+viuzWT1YdQIxZDli
 - WhatsApp-Kanal: https://whatsapp.com/channel/0029Vb9fVOAKLaHguUfjr425
 - SoundCloud-Profil: https://soundcloud.com/techno-milieu
-- Discogs: https://www.discodogs.de
+- Discogs: https://www.discogs.com/
 
-## Bot-Ziel
-1. Neue Gruppenmitglieder automatisch begrüßen und auf den Radiosender verweisen.
-2. Bei echtem DJ-Live-Start automatisch im Telegram-Kanal posten:
-   **WIR SIND AUF SENDUNG!! LIVE!!**
-3. Keine Offline-Meldungen, keine Musikwünsche, kein Jukebox.
-4. AutoDJ/Fallback darf nicht fälschlich als DJ-Livebetrieb gemeldet werden.
+## Radio – Streamdaten
+- Listen2MyRadio Host: uk21freenew.listen2myradio.com
+- Port: 22961
+- Mount: /stream
+- Bestätigte IP: 82.145.41.8
+- Fehlendes Live-Signal ist normal, wenn Traktor Pro gerade nicht sendet.
 
-Begrüßungsvorschlag:
-> Willkommen bei TEKKNO MILIEU RADIO! Hier gibt es Hardtekno, Industrial und kompromisslose Underground-Sounds. Einschalten: https://technomilieu.radio12345.com/ – RAW DARK FREQUENCIES BROADCAST.
+## Radio – Betriebsziel
+1. DJ sendet aus Traktor Pro über Listen2MyRadio.
+2. Website ermöglicht einen klaren Live-Einstieg.
+3. Bei fehlendem DJ-Live-Signal soll das veröffentlichte Archiv verfügbar sein.
+4. T.M.R.- und RDFB-Jingles sollen später im Archiv-/AutoDJ-Betrieb im 60-Minuten-Rhythmus eingebunden werden.
+5. DJ-Live muss technisch von Archiv-/AutoDJ-Wiedergabe unterscheidbar sein.
+
+### Technische Einschränkungen
+- Eine statische Website kann Traktor Pro nicht per Knopfdruck fernsteuern.
+- Ein Live-Status darf erst angezeigt werden, wenn eine zuverlässige Statusquelle den DJ-Livebetrieb bestätigt.
+- Der aktuelle Live-Button führt zur offiziellen Listen2MyRadio-Hörseite.
+- Der Browser-Archivplayer ist kein serverseitiger 24/7-AutoDJ.
+- Die aktuelle playlist.json ist leer. Archivwiedergabe ist daher noch nicht praktisch bestätigt.
+- Für Upload/Admin/AutoDJ wird eine sichere Speicher- und Backend-Lösung benötigt.
 
 ## Website-Repository
 - Repository: https://github.com/GrieschTechno/technomilieu
-- Letzter Website-Commit: aa4c5901c27204ee6f3dc81ca69c01a978456492
-- Änderungen: Telegram-Gruppen-Einladungslink ergänzt; Community-Card hinzugefügt; Live-Spruch im Telegram-Kanaltext ergänzt.
-- Frühere Community-Links-Änderung: 21774492e4c3a8770f5d55bf2d8601ed80d12762.
-
-## Veröffentlichungsstatus
-Die Website-Änderungen sind im GitHub-Repository gespeichert. Öffentliche Veröffentlichung ist **nicht bestätigt**. Repository-Metadaten melden `has_pages: false`. Frühere Pages-Workflows scheiterten beim Aktivieren der Pages-Site mit `Resource not accessible by integration`; der zweite Workflow fand keine Pages-Site. Das Repository ist ein Fork. Der Kontoinhaber muss in GitHub unter Settings → Pages die Pages-Veröffentlichung aktivieren (Build and deployment: GitHub Actions), falls GitHub Pages verwendet werden soll. Danach Deploy erneut prüfen und die öffentliche URL testen. Cloudflare Pages ist bislang nicht eingerichtet/bestätigt.
+- Hauptdatei: index.html
+- Playlist: playlist.json
+- Netlify-Konfiguration: netlify.toml
+- GitHub-Pages-Workflow: .github/workflows/deploy.yml
+- Letzter zuvor dokumentierter Website-Commit: aa4c5901c27204ee6f3dc81ca69c01a978456492.
+- index.html enthält Radio-Einstieg, Browser-Archivplayer, Community-Links und Musiklinks.
+- netlify.toml veröffentlicht das Repository-Wurzelverzeichnis.
+- Öffentliche Veröffentlichung ist weiterhin nicht als erfolgreich bestätigt.
+- Frühere Pages-Workflows scheiterten mit Resource not accessible by integration; laut vorheriger Übergabe ist das Repository ein Fork und Pages war nicht aktiviert.
+- Base44 ist für den aktuellen Veröffentlichungsweg nicht vorgesehen.
 
 ## Telegram-Bot – noch offen
 - Bot @TECHNOMILIEUBOT muss vom Kontoinhaber zur Gruppe und zum Kanal hinzugefügt werden.
 - Administratorrechte zum Senden von Nachrichten erteilen.
-- Bot-Token ausschließlich als Secret in einer Server-/Worker-Umgebung speichern; niemals in Chat, Website, Repository oder Übergabedatei ablegen.
-- Noch keine Bot-Konfiguration oder Veröffentlichung der Bot-Nachrichten bestätigt.
+- Bot-Token ausschließlich als Secret in einer Server-/Worker-Umgebung speichern.
+- Keine Bot-Konfiguration oder Veröffentlichung der Bot-Nachrichten bestätigt.
 - Vor automatischen Live-Meldungen eine verlässliche Statusquelle anbinden, die DJ-Live von AutoDJ unterscheidet.
-
-## Streamdaten
-- Listen2MyRadio Host: uk21freenew.listen2myradio.com
-- Port: 22961
-- Mount: /stream
-- bestätigte IP: 82.145.41.8
-- Wenn kein DJ sendet, ist fehlendes Live-Signal normal.
+- Keine Offline-Meldungen, keine Musikwünsche, kein Jukebox.
 
 ## Arbeitsregeln
-- Möglichst kostenlose, automatisierte Umsetzung ohne Programmierarbeit des Nutzers.
-- Keine Veröffentlichung als abgeschlossen melden, solange Plattform und öffentlicher Link nicht geprüft sind.
+- Ein Schritt nach dem anderen; möglichst automatisiert und ohne Programmierarbeit des Nutzers.
+- Bestehendes Projekt weiterentwickeln, keinen unnötigen Neubau starten.
+- Möglichst kostenlose Dienste bevorzugen.
 - Keine Geheimnisse in öffentliche Dateien aufnehmen.
-- Projektstand bei jeder wesentlichen Änderung aktualisieren.
+- Keine Veröffentlichung oder Funktion als abgeschlossen melden, bevor sie öffentlich geprüft wurde.
+- Projektübergabe bei wesentlichen Änderungen aktualisieren.
+
+## Nächster Schritt
+PHASE 1 / SCHRITT 1: Netlify-Deployment prüfen und eine erreichbare HTTPS-Seite bestätigen. Danach Streamzugang und einen ersten freigegebenen Archiv-Mix testen.
