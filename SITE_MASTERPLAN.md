@@ -100,5 +100,7 @@ Ein Button auf einer statischen Website kann Traktor Pro nicht fernsteuern und d
 - GitHub-Pages-Workflow ist vorhanden, Pages-Veröffentlichung war laut Übergabe aber nicht aktiviert.
 - Öffentliche Veröffentlichung und funktionierende Archiv-Wiedergabe sind noch nicht bestätigt.
 
-## 7. Nächster konkreter Schritt
-PHASE 1 / Schritt 1: Netlify-Deployment der bestehenden GitHub-Version prüfen und eine erreichbare HTTPS-Seite bestätigen. Danach tatsächlichen Streamzugang und einen ersten freigegebenen Archiv-Mix testen.
+## 7. Letzter Funktionstest und nächster Schritt
+Am 27.11.2026 wurde die offizielle Listen2MyRadio-Hörseite öffentlich erreicht. Der bisher bekannte Netlify-Link raw-dark-frequency-boradcast.netlify.app liefert HTTP 404. playlist.json ist leer. Deshalb ist die Website-Veröffentlichung und Archiv-Wiedergabe noch nicht bestätigt.
+
+Nächster Schritt: Netlify-Projekt bzw. korrekte Site-URL identifizieren und das GitHub-Repository als Deploy-Quelle verbinden. Danach HTTPS-Seite prüfen. Erst anschließend einen freigegebenen DJ-Mix einbinden und testen.
