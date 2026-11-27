@@ -89,5 +89,11 @@ Die Bereiche außerhalb Radio/Archiv werden erst in späteren Phasen umgesetzt.
 - Keine Veröffentlichung oder Funktion als abgeschlossen melden, bevor sie öffentlich geprüft wurde.
 - Projektübergabe bei wesentlichen Änderungen aktualisieren.
 
+## Letzter öffentlicher Funktionstest (27.11.2026)
+- Offizielle Listen2MyRadio-Hörseite https://technomilieu.radio12345.com/ ist öffentlich erreichbar und liefert die Senderseite.
+- Der bisher verwendete Netlify-Link https://raw-dark-frequency-boradcast.netlify.app/ liefert HTTP 404 (Page not found). Damit ist die Website-Veröffentlichung über diesen Link nicht funktionsfähig bzw. nicht bestätigt.
+- playlist.json ist leer; eine Archiv-Wiedergabe kann deshalb noch nicht getestet werden.
+- Kein DJ-Live-Signal wurde vorausgesetzt oder als Fehler gewertet.
+
 ## Nächster Schritt
-PHASE 1 / SCHRITT 1: Netlify-Deployment prüfen und eine erreichbare HTTPS-Seite bestätigen. Danach Streamzugang und einen ersten freigegebenen Archiv-Mix testen.
+PHASE 1 / SCHRITT 1A: Netlify-Projekt bzw. korrekte Site-URL identifizieren und GitHub-Repository als Deploy-Quelle verbinden. Danach HTTPS-Seite prüfen. Anschließend einen vom Nutzer freigegebenen ersten Archiv-Mix einbinden und die Wiedergabe testen.
